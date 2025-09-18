@@ -14,11 +14,11 @@ const router = express.Router();
 //   res.status(200).json({ message: "Test route is working" });
 // });
 
+router.post("/login", login);
+
 router.use(arcjetProtection);
 
 router.post("/signup", signup);
-
-router.post("/login", login);
 
 router.post("/logout", logout);
 
