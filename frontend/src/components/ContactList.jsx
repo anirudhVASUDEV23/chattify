@@ -7,7 +7,7 @@ function ChatsList() {
     useChatStore();
 
   useEffect(() => {
-    getAllContacts();
+    getAllContacts(); //this sets the messages in the useChatStore with the chat the authuser has with the selectedUser
   }, [getAllContacts]);
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;

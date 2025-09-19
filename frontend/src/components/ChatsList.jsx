@@ -8,7 +8,7 @@ function ChatsList() {
     useChatStore();
 
   useEffect(() => {
-    getMyChatPartners();
+    getMyChatPartners();//this sets the messages in the useChatStore 
   }, [getMyChatPartners]);
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;

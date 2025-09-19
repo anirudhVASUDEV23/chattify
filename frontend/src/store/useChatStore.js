@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 export const useChatStore = create((set, get) => ({
   allContacts: [], //array if all users
   chats: [], //array of members with whom i have a contact
-  messages: [],
+  messages: [], //
   activeTab: "chats",
   selectedUser: null,
   isUsersLoading: false,
@@ -60,6 +60,18 @@ export const useChatStore = create((set, get) => ({
       toast.error(error.response.data.message);
     } finally {
       set({ isUpdatingProfileImage: false });
+    }
+  },
+
+  getMessagesByUserId: async (userId) => {
+    set({ isMessagesLoading: true });
+    try {
+      const res = await axiosInstance.get(`/messages/${userId}`);
+      set({ messages: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      set({ isMessagesLoading: false });
     }
   },
 }));
