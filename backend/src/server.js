@@ -5,6 +5,7 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
+import cors from "cors";
 
 const app = express();
 const __dirname = path.resolve();
@@ -14,6 +15,7 @@ const PORT = ENV.PORT || 3000;
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 app.use(cookieParser());
+app.use(cors({ credentials: true, origin: ENV.CLIENT_URL }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);

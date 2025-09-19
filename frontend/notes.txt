@@ -1,0 +1,111 @@
+Exactly — this behavior is entirely because React is a SPA (Single Page Application).
+
+Let's go step by step and connect the dots.
+
+1. What SPA Means
+
+In a Single Page Application (SPA):
+
+Your React app loads once in the browser (initial HTML + JS bundle).
+
+After that, React Router handles navigation on the client side.
+
+Instead of the browser making a new request and reloading the entire page, React just swaps components dynamically inside the already loaded page.
+
+Key idea: The browser never reloads the full page unless you explicitly refresh (F5).
+Instead, React updates the DOM in-place.
+
+2. How This Affects useEffect
+
+Your code:
+
+useEffect(() => {
+  checkAuth();
+}, [checkAuth]);
+
+
+Here’s what happens:
+
+Action	Does <App /> Unmount & Remount?	Does useEffect Run?
+Hard Reload (F5)	✅ Yes	✅ Runs again
+Client-Side Navigation (<Link>)	❌ No	❌ Does NOT run
+
+Because in a SPA, client-side navigation doesn’t reload the entire application — only a part of the component tree changes.
+
+So <App /> stays mounted in memory, and React just replaces the child <Route> component (ChatPage, LoginPage, etc.).
+
+3. Visual Flow Example
+
+Your component tree:
+
+<App>
+  └── <Routes>
+        ├── "/"        → <ChatPage>
+        ├── "/login"   → <LoginPage>
+        └── "/signup"  → <SignUpPage>
+
+Initial Load (Fresh tab)
+
+Browser loads /login.
+
+React mounts <App />.
+
+useEffect in <App /> runs → checkAuth() fires.
+
+Navigate to /signup using <Link>
+
+React does NOT reload the page.
+
+<App /> stays mounted.
+
+<LoginPage /> unmounts, <SignUpPage /> mounts.
+
+Since <App /> never unmounted, its useEffect does not re-run.
+
+Browser Refresh at /signup
+
+Browser discards everything and reloads the React app from scratch.
+
+<App /> mounts fresh again.
+
+useEffect runs again → checkAuth() fires again.
+
+4. Why This is Good for Performance
+
+In a non-SPA (multi-page app):
+
+Every page navigation would hit the server → full reload.
+
+checkAuth() would run on every single page change, even when not needed.
+
+With React SPA:
+
+The app only loads once.
+
+checkAuth() runs only once on initial load, unless you explicitly call it again.
+
+Navigation between pages is instant and handled in memory → faster UX.
+
+5. Browser vs SPA Network Behavior
+Action	Browser (Multi-page)	React SPA
+Navigate to /login → /signup	Browser requests /signup from server → full reload	React swaps <LoginPage /> with <SignUpPage /> → no full reload
+Initial Auth Check	Runs on every page load	Runs once unless manually re-called
+Performance	Slower (network round-trip each time)	Faster (JS already loaded, just state changes)
+6. When checkAuth Runs
+
+Here’s the final summary:
+
+Event	checkAuth() Runs?	Why
+Initial page load (cold start)	✅ Yes	<App /> mounts for the first time
+Browser refresh (F5)	✅ Yes	Entire React app remounts
+Client-side navigation (<Link> or Navigate)	❌ No	<App /> stays mounted, SPA just swaps routes
+After login/logout action	✅ If manually called	You need to trigger it yourself
+7. Takeaway
+
+This happens because React is a SPA, meaning there is only one initial load, and navigation happens inside the browser without a reload.
+
+<App /> lives for the entire lifetime of the session unless the user refreshes or closes the tab.
+
+checkAuth only runs automatically when <App /> mounts — i.e., initial load or hard reload.
+
+This makes authentication checks faster and more efficient, as you avoid hitting the backend on every navigation.
