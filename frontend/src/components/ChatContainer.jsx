@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import ChatHeader from "./ChatHeader";
@@ -16,6 +16,12 @@ function ChatContainer() {
       getMessagesByUserId(selectedUser._id);
     }
   }, [selectedUser, getMessagesByUserId]);
+
+  const messageEndRef = useRef(null);
+
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   // 🗂️ Group messages by date
   //using useMemo to reduce the re-render when the messages are not changed
@@ -111,13 +117,18 @@ function ChatContainer() {
 
                       {/* Message timestamp */}
                       <p className="text-xs mt-1 opacity-75 flex items-center gap-1">
-                        {new Date(msg.createdAt).toISOString().slice(11, 16)}
+                        {new Date(msg.createdAt).toLocaleTimeString(undefined, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true, // or false for 24-hour format
+                        })}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
             ))}
+            <div ref={messageEndRef} />
           </div>
         ) : isMessagesLoading ? (
           <MessagesLoadingSkeleton />
