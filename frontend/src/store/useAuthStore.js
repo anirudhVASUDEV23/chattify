@@ -6,6 +6,7 @@ export const useAuthStore = create((set) => ({
   authUser: null,
   isCheckingAuth: true, //whenever reload the page this will be true
   isSigningUp: false,
+  isLoggingIn: false,
 
   checkAuth: async () => {
     try {
@@ -20,7 +21,7 @@ export const useAuthStore = create((set) => ({
   },
 
   signup: async (data) => {
-    set({ isSigningUp: true });
+    set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/signup", data);
       set({ authUser: res.data });
@@ -30,7 +31,34 @@ export const useAuthStore = create((set) => ({
       console.log(error);
       toast.error(error.response.data.message);
     } finally {
+      set({ isLoggingIn: false });
+    }
+  },
+
+  login: async (data) => {
+    set({ isSigningUp: true });
+    try {
+      const res = await axiosInstance.post("/auth/login", data);
+      set({ authUser: res.data });
+      //toast
+      toast.success("Logged In Successfully");
+    } catch (error) {
+      console.log(error);
+      //axios treats response with status codes>=400 as errors and will throw an error evn if not all fields are filled
+      toast.error(error.response.data.message);
+    } finally {
       set({ isSigningUp: false });
+    }
+  },
+
+  logout: async () => {
+    try {
+      await axiosInstance.post("/auth/logout");
+      set({ authUser: null });
+      toast.success("Logged Out Successfully");
+    } catch (error) {
+      console.log("Error in logout", error);
+      toast.error(error.response.data.message);
     }
   },
 }));
