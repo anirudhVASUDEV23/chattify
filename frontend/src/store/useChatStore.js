@@ -3,14 +3,15 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 
 export const useChatStore = create((set, get) => ({
-  allContacts: [],
-  chats: [],
+  allContacts: [], //array if all users
+  chats: [], //array of members with whom i have a contact
   messages: [],
   activeTab: "chats",
   selectedUser: null,
   isUsersLoading: false,
+  isUpdatingProfileImage: false,
   isMessagesLoading: false,
-  isSoundEnabled: localStorage.getItem("isSoundEnabled") === true,
+  isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -45,6 +46,20 @@ export const useChatStore = create((set, get) => ({
       toast.error(error.response.data.message);
     } finally {
       set({ isUsersLoading: false });
+    }
+  },
+
+  updateProfile: async (data) => {
+    set({ isUpdatingProfileImage: true });
+    try {
+      const res = await axiosInstance.put("/auth/update-profile", data);
+      set({ authUser: res.data });
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      console.log("Error in update Profile:", error);
+      toast.error(error.response.data.message);
+    } finally {
+      set({ isUpdatingProfileImage: false });
     }
   },
 }));
