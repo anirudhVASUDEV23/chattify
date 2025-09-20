@@ -22,6 +22,11 @@ const io = new Server(server, {
 //apply auth middleware to all socket connections
 io.use(socketAuthMiddleWare);
 
+//we will use this to check if a user is online and get their socketId
+export function getReceiverSocketId(userId) {
+  return userSocketMap[userId];
+}
+
 const userSocketMap = {}; //{userId: socketId;}}
 
 // Yes, exactly — there will only be one io server instance for your entire application.

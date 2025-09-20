@@ -106,4 +106,32 @@ export const useChatStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   },
+
+  subscribeToMessages: () => {
+    const { isSoundEnabled } = get();
+    const socket = useAuthStore.getState().socket;
+    console.log("Socket in subscribeToMessages:", socket);
+
+    socket.on("newMessage", (message) => {
+      const isMessageSentFromSelectedUser =
+        message.senderId === get().selectedUser?._id;
+      if (!isMessageSentFromSelectedUser) return;
+      const currentMessages = get().messages;
+      set({ messages: [...currentMessages, message] });
+      console.log("New message received:", message);
+
+      if (isSoundEnabled) {
+        const notificationSound = new Audio("/sounds/notification.mp3");
+        notificationSound.currentTime = 0;
+        notificationSound.play().catch((err) => {
+          console.log(err);
+        });
+      }
+    });
+  },
+
+  unsubscribeToMessages: () => {
+    const socket = useAuthStore.getState().socket;
+    socket.off("newMessage");
+  },
 }));
